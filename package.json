@@ -1,22 +1,25 @@
 {
-  "name": "CodesOnUsAssistant",
+  "name": "@codes-on-us/assistant",
   "version": "1.0.0",
   "description": "A react component library with minimal setup",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "type": "./dist/esm/index.d.ts",
-  "files":["./dist"],
+  "files": [
+    "./dist"
+  ],
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && npm run build:esm && npm run build:cjs",
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir dist/cjs",
     "test": "jest --config jest.config.ts",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "deploy": "npm publish --dry-run && npm publish --access=public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com"
+    "url": "git+https://github.com/Codes-on-Us/CodesOnUsAssistant"
   },
   "keywords": [
     "react",
@@ -25,9 +28,9 @@
   "author": "Sumit",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/"
+    "url": "https://github.com/Codes-on-Us/CodesOnUsAssistant/issues"
   },
-  "homepage": "https://github.com/",
+  "homepage": "https://github.com/Codes-on-Us/CodesOnUsAssistant",
   "devDependencies": {
     "@commitlint/cli": "^19.4.1",
     "@commitlint/config-conventional": "^19.4.1",
