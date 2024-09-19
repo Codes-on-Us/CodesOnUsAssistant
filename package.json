@@ -1,6 +1,6 @@
 {
   "name": "@codes-on-us/assistant",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "A react component library with minimal setup",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -15,11 +15,11 @@
     "build:cjs": "tsc --module commonjs --outDir dist/cjs",
     "test": "jest --config jest.config.ts",
     "prepare": "husky install",
-    "deploy": "npm publish --dry-run && npm publish --access=public"
+    "deploy": "npm publish --access=public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Codes-on-Us/CodesOnUsAssistant"
+    "url": "git+https://github.com/Codes-on-Us/CodesOnUsAssistant.git"
   },
   "keywords": [
     "react",
