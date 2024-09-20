@@ -9,7 +9,7 @@ export const UseUserAssistant = () => {
     var { Get, Put } = UseHttpAssistant()
     const userAssistantState = useContext(UserAssistantContext);
     const checkUserInProccess = userAssistantState?.[0]?.checkUserInProccess
-    const loadUserInProcess = userAssistantState?.[0]?.loadUserInProcess
+    // const loadUserInProcess = userAssistantState?.[0]?.loadUserInProcess
 
     const UpdateUser = (newUser: any | undefined) => {
         userState?.[1](newUser)
