@@ -17,7 +17,7 @@ export interface UseHttpClientResponse<T> {
 
 type RequestObject = AxiosRequestConfig & { url: string; method?: AxiosRequestConfig['method']; data?: any };
 
-export default function useHttpClient<T>(): UseHttpClientResponse<T> {
+export function useHttpClient<T>(): UseHttpClientResponse<T> {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { logout } = UseUserAssistant()
 

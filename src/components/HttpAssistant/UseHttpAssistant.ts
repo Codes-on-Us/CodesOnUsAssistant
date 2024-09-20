@@ -1,7 +1,8 @@
 
 import { toast } from "react-toastify"
-import useHttpClient from "./Utilities/useHttpClient"
+
 import { Http } from "./Utilities/Http"
+import { useHttpClient } from "./Utilities/useHttpClient"
 
 export const UseHttpAssistant = () => {
 
