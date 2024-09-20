@@ -1,6 +1,6 @@
 {
   "name": "@codes-on-us/assistant",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A react component library with minimal setup",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -25,7 +25,7 @@
     "react",
     "react-component"
   ],
-  "author": "Sumit",
+  "author": "Navid Sharifi",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Codes-on-Us/CodesOnUsAssistant/issues"
@@ -46,6 +46,8 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "axios": "^1.7.2",
+    "react-toastify": "^10.0.5",
     "rimraf": "^6.0.1"
   }
 }
