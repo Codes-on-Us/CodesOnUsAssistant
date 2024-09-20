@@ -1,6 +1,6 @@
 {
   "name": "@codes-on-us/assistant",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "A react component library with minimal setup",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
