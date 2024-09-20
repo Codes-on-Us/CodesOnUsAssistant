@@ -1,6 +1,6 @@
 {
   "name": "@codes-on-us/assistant",
-  "version": "0.0.10",
+  "version": "0.0.19",
   "description": "A react component library with minimal setup",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -15,7 +15,7 @@
     "build:cjs": "tsc --module commonjs --outDir dist/cjs",
     "test": "jest --config jest.config.ts",
     "prepare": "husky install",
-    "deploy": "npm publish --access=public"
+    "deploy": "npm run build && npm publish --access=public"
   },
   "repository": {
     "type": "git",

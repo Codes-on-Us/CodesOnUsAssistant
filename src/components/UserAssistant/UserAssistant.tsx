@@ -9,11 +9,13 @@ export const UseUserAssistant = () => {
     var { Get, Put } = UseHttpAssistant()
     const userAssistantState = useContext(UserAssistantContext);
     const checkUserInProccess = userAssistantState?.[0]?.checkUserInProccess
-    // const loadUserInProcess = userAssistantState?.[0]?.loadUserInProcess
+    // const _loadUserInProcess = userAssistantState?.[0]?.loadUserInProcess
+
 
     const UpdateUser = (newUser: any | undefined) => {
         userState?.[1](newUser)
     }
+
 
     const checkUserTokenAndLoadUser = async () => {
 
@@ -21,7 +23,7 @@ export const UseUserAssistant = () => {
 
         userAssistantState?.[1](c => {
             if (c)
-                c.loadUserInProcess = true;
+                c.checkUserInProccess = true;
             return c
         })
 
@@ -29,10 +31,9 @@ export const UseUserAssistant = () => {
 
         userAssistantState?.[1](c => {
             if (c)
-                c.loadUserInProcess = false;
+                c.checkUserInProccess = false;
             return c
         })
-
 
         if (response) {
             var res = response as {
@@ -56,7 +57,7 @@ export const UseUserAssistant = () => {
 
         userAssistantState?.[1](c => {
             if (c)
-                c.loadUserInProcess = true;
+                c.checkUserInProccess = true;
             return c
         })
 
@@ -65,7 +66,7 @@ export const UseUserAssistant = () => {
 
         userAssistantState?.[1](c => {
             if (c)
-                c.loadUserInProcess = false;
+                c.checkUserInProccess = false;
             return c
         })
 
@@ -81,7 +82,8 @@ export const UseUserAssistant = () => {
     }
 }
 
+
 export interface IUserAssistant {
     checkUserInProccess: boolean,
-    loadUserInProcess: boolean
+    loadUserInProcess: boolean,
 }

@@ -4,7 +4,7 @@ import { IUserAssistant } from "./UserAssistant/UserAssistant";
 
 export const UserContext = createContext<[any | undefined, React.Dispatch<React.SetStateAction<string | undefined>>] | undefined>(undefined);
 
-export const UserAssistantContext = createContext<[IUserAssistant | undefined, React.Dispatch<React.SetStateAction<IUserAssistant | undefined>>] | undefined>(undefined);
+export const UserAssistantContext = createContext<[IUserAssistant, React.Dispatch<React.SetStateAction<IUserAssistant>>] | undefined>(undefined);
 
 export const AssistantProvicer: FC<{
     children: ReactNode | ReactNode[]
@@ -13,7 +13,7 @@ export const AssistantProvicer: FC<{
 }) => {
 
         const userState = useState<any>()
-        const UserAssistant = useState<IUserAssistant>()
+        const UserAssistant = useState<IUserAssistant>({ checkUserInProccess: false, loadUserInProcess: false })
 
         return (
 

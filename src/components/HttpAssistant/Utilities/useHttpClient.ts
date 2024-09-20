@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import AxiosInstance from "./axiosInstance"
 import axios, { AxiosRequestConfig } from 'axios';
-import { UseUserAssistant } from '../../UserAssistant/UserAssistant';
+import { UserContext } from '../../AssistantProvider';
 
 
 interface Response<T> {
@@ -18,8 +18,13 @@ export interface UseHttpClientResponse<T> {
 type RequestObject = AxiosRequestConfig & { url: string; method?: AxiosRequestConfig['method']; data?: any };
 
 export function useHttpClient<T>(): UseHttpClientResponse<T> {
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { logout } = UseUserAssistant()
+    const userState = useContext(UserContext);
+
+    const logout = () => {
+        userState?.[1](undefined)
+    }
 
 
     const send = async (
