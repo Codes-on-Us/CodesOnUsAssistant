@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { test } from "@jest/globals"
 import { render } from "@testing-library/react"
-import { AssistantProvicer, FormAssistant, UseUserAssistant } from './index'
+import { AssistantProvicer, FormAssistant } from './index'
+import Button from "./Buttons/Buttons";
 
 
 test("testing button component", () => {
@@ -27,38 +28,10 @@ test("AssistantProvicer", () => {
 	</AssistantProvicer>)
 })
 
-function App() {
-
-	console.log("log");
-
-	return (
-		<div className="App">
-			<Header3 />
-			<Button />
-			<Header3 />
-		</div>
-	);
-}
-
-export default App;
-
-
-const Header3 = () => {
-
-	const { user } = UseUserAssistant()
-	return <div> {user}</div>
-}
+test("button", () => {
+	render(<Button size="small" schema="cyan"> test </Button>)
+})
 
 
 
-const Button = () => {
-
-	const { updateUser } = UseUserAssistant()
-
-	useEffect(() => {
-		updateUser(Date.now().toString())
-	}, [])
-
-	return <div onClick={() => updateUser(Date.now().toString())}> <button> Change </button></div>
-}
 
