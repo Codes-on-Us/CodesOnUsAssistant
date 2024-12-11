@@ -15,7 +15,8 @@ export const UseHttpAssistant = () => {
             var { errorMessage, response } = await send({
                 method: method,
                 url: url,
-                data: data
+                data: data ,
+                timeout :5 * 60 * 1000
             },
                 responseType
             )
