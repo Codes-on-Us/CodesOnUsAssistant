@@ -6,10 +6,12 @@ import styled from "styled-components";
 
 interface Props extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
     size?: "small" | "normal" | "big",
-    schema?: "blue" | "cyan" | "red",
+    schema?: "blue" | "cyan" | "red" | "gray",
     startIcon?: ReactNode
 }
+
 export const Button: FC<Props> = (props) => {
+
     const { size = "normal", schema = "blue" } = props
 
     const SmallButtons = styled.button<{
@@ -69,7 +71,32 @@ export const Button: FC<Props> = (props) => {
             {...props} > {props.startIcon}{props.children} </SmallButtons>
 
 
+    if (size === "small" && schema === "blue")
+        return <SmallButtons $fontSize="13px" $color="#fff" $backhroudColor="#1976d2" {...props} > {props.startIcon}{props.children} </SmallButtons>
 
+    if (size === "normal" && schema === "blue")
+        return <SmallButtons
+            $fontSize="16px"
+            $height="32px"
+            $fontWieght="500"
+            $padding="0px 15px"
+            $color="#fff"
+            $backhroudColor="#1976d2"
+            {...props} > {props.startIcon}{props.children} </SmallButtons>
+
+
+    if (size === "small" && schema === "gray")
+        return <SmallButtons $fontSize="13px" $color="#fff" $backhroudColor="#6c757d" {...props} > {props.startIcon}{props.children} </SmallButtons>
+
+    if (size === "normal" && schema === "gray")
+        return <SmallButtons
+            $fontSize="16px"
+            $height="32px"
+            $fontWieght="500"
+            $padding="0px 15px"
+            $color="#fff"
+            $backhroudColor="#6c757d"
+            {...props} > {props.startIcon}{props.children} </SmallButtons>
 
 
 
