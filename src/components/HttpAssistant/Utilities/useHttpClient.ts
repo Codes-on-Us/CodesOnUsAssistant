@@ -56,11 +56,8 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
             var responetError = error?.response?.data
 
             if (error.response?.status === 401) {
-
                 errorMessage = responetError?.message ?? "You are unauthorized to access this resource."
                 logout()
-
-
             } else if (responetError?.failed === true && responetError?.validationErrors && Object.keys(responetError?.validationErrors).length > 0) {
 
                 Object.keys(responetError?.validationErrors).map((key) => {

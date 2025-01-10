@@ -1,8 +1,7 @@
 import React from "react";
 import { test } from "@jest/globals"
 import { render } from "@testing-library/react"
-import { AssistantProvicer, FormAssistant } from './index'
-import Button from "./Buttons/Buttons";
+import { AssistantProvicer, Button, FormAssistant } from './index'
 
 
 test("testing button component", () => {
