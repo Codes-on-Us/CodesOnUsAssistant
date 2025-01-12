@@ -1,13 +1,12 @@
 
 import { toast } from "react-toastify"
-
 import { Http } from "./Utilities/Http"
 import { useHttpClient } from "./Utilities/useHttpClient"
+
 
 export const UseHttpAssistant = () => {
 
     var { isLoading, send } = useHttpClient()
-
 
     const SendRequest: (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage?: boolean) => any
         = async (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage: boolean = false) => {
@@ -15,8 +14,8 @@ export const UseHttpAssistant = () => {
             var { errorMessage, response } = await send({
                 method: method,
                 url: url,
-                data: data ,
-                timeout :5 * 60 * 1000
+                data: data,
+                timeout: 5 * 60 * 1000
             },
                 responseType
             )

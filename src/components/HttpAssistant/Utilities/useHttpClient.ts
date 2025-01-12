@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import AxiosInstance from "./axiosInstance"
 import axios, { AxiosRequestConfig } from 'axios';
 import { UserContext } from '../../AssistantProvider';
+import { UserTrackingLogMessage, UseUserTracking } from '../../UserTracking/UserTracking';
 
 
 interface Response<T> {
@@ -21,6 +22,8 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const userState = useContext(UserContext);
+    const { LogAndForget } = UseUserTracking()
+
 
     const logout = () => {
         userState?.[1](undefined)
@@ -32,6 +35,8 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
         responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata'
     ) => {
         setIsLoading(true);
+        var logMessage: UserTrackingLogMessage = { message: "Http Request => " + request.method, url: request.url }
+
         try {
 
             if (responseType) {
@@ -48,7 +53,10 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
             var res = await AxiosInstance.request<T>(request);
             setIsLoading(false);
 
+            LogAndForget(logMessage)
+
             return { response: res.data, errorMessage: null, statusCode: '200' };
+
         } catch (error: any) {
 
             setIsLoading(false);
@@ -98,6 +106,16 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
             else {
                 errorMessage = 'An unknown error occurred';
             }
+
+            logMessage.error = error;
+
+            try {
+                logMessage.response = typeof (responetError?.message) === 'string' ? responetError.message : JSON.stringify(responetError?.message ?? "")
+            } catch (error) {
+                logMessage.response = "" + (responetError.message as any)
+            }
+
+            LogAndForget(logMessage)
 
             return { response: null, errorMessage, statusCode: error.response?.status };
         }

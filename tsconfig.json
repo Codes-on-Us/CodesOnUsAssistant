@@ -19,7 +19,7 @@
 		"declaration": true,
 		"isolatedModules": true,
 		"noEmitOnError": true,
-		"noImplicitReturns": true,
+		"noImplicitReturns": false,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"removeComments": true

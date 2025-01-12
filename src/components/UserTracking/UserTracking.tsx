@@ -1,25 +1,38 @@
-import {HubConnectionState } from "@microsoft/signalr/src/HubConnection"
-import React, { useContext, useEffect } from "react"
-import { TrakingConnectionContext } from "../AssistantProvider";
+import { FC, useContext, useEffect } from "react"
+import { AciveTrackingContext, TrakingConnectionContext } from "../AssistantProvider";
+import React from "react";
+
 const signalR = require("@microsoft/signalr");
 
+export const UserTracking: FC<{ aciveTracking?: boolean }> = ({
+    aciveTracking
+}) => {
 
-export const UseUserTracking = (props: { aciveTracking?: boolean }) => {
+    UseUserTracking()
 
-    var { aciveTracking } = props
+    const aciveTrackingState = useContext(AciveTrackingContext)
+    useEffect(() => {
+        aciveTrackingState?.[1](aciveTracking === true)
+    }, [aciveTracking])
+
+    return <></>
+}
+
+export const UseUserTracking = () => {
+
+    const aciveTracking = useContext(AciveTrackingContext)?.[0] === true
     const TrakingConnection = useContext(TrakingConnectionContext)
-    const TrakingConnectionState = TrakingConnection?.[0]
-    const SetTrakingConnection = TrakingConnection?.[1]
+
 
     const Stop = () => {
-        SetTrakingConnection && SetTrakingConnection((s) => {
+        TrakingConnection?.[1] && TrakingConnection?.[1]((s) => {
             s?.stop()
             return s
         })
     }
 
     const Start = () => {
-        SetTrakingConnection && SetTrakingConnection((s) => {
+        TrakingConnection?.[1] && TrakingConnection?.[1]((s) => {
             s?.start();
             return s
         })
@@ -27,28 +40,86 @@ export const UseUserTracking = (props: { aciveTracking?: boolean }) => {
 
     const CheckTraking = async () => {
 
-        if (!TrakingConnectionState)
+        if (!TrakingConnection?.[0]) {
             return;
+        }
 
-        if (aciveTracking === undefined && aciveTracking === false && TrakingConnectionState.state !== HubConnectionState.Connected) {
+        if (aciveTracking !== true && TrakingConnection?.[0].state === signalR.HubConnectionState.Connected) {
             Stop()
             return;
         }
 
-        if (TrakingConnectionState.state !== HubConnectionState.Connected) {
+        if (TrakingConnection?.[0].state === signalR.HubConnectionState.Disconnected) {
+            console.log('start');
             Start()
+            return
         }
+    }
+
+    useEffect(() => {
+        if (aciveTracking) {
+            console.log("tacking  state => " + TrakingConnection?.[0]?.state);
+        }
+
+    }, [TrakingConnection?.[0]?.state])
+
+
+    useEffect(() => {
+        void CheckTraking()
+    }, [aciveTracking, TrakingConnection?.[0]])
+
+
+    const UserTrackingConnection = () => {
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl(process.env.REACT_APP_USERTRAKING_ADDRESS,
+                {
+                    skipNegotiation: true,
+                    transport: signalR.HttpTransportType.WebSockets
+                }
+            )
+            .build()
+
+        connection.on("receive", (data: any) => {
+            console.log("Received:", data);
+        });
+
+        return connection
 
     }
 
     useEffect(() => {
-        void CheckTraking()
-    }, [aciveTracking])
+        if (!TrakingConnection?.[0])
+            TrakingConnection?.[1](UserTrackingConnection())
+    }, [])
 
+
+    const LogAsync = async (props: UserTrackingLogMessage) => {
+
+        if (aciveTracking !== true || !TrakingConnection?.[0] || TrakingConnection?.[0]?.state !== signalR.HubConnectionState.Connected) {
+            console.log("refuse to log =>" + TrakingConnection?.[0]?.state);
+            return
+        }
+
+        await TrakingConnection?.[0].invoke("SendMessageAsync", JSON.stringify(props));
+        console.log("Message sent successfully.");
+    }
+
+    const LogAndForget = (props: UserTrackingLogMessage) => {
+        setTimeout(async () => {
+            await LogAsync(props)
+        }, 1);
+    }
+
+    return {
+        LogAsync,
+        LogAndForget
+    }
 }
 
-
-
-export const UserTrackingConnection = () => new signalR.HubConnectionBuilder()
-    .withUrl(process.env.REACT_APP_USERTRAKING_ADDRESS)
-    .build()
+export interface UserTrackingLogMessage {
+    message: string,
+    url?: string,
+    response?: string,
+    error?: string
+}
