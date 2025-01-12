@@ -24,6 +24,8 @@ export const AssistantProvicer: FC<{
         const trakingConnection = useState<HubConnection>(new signalR.HubConnectionBuilder()
             .withUrl("https://localbridge.navid-sharifi.ir/Bridge")
             .build())
+        
+
 
 
 
