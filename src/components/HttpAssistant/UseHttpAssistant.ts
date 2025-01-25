@@ -8,10 +8,13 @@ export const UseHttpAssistant = () => {
 
     var { isLoading, send } = useHttpClient()
 
-    const SendRequest: (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage?: boolean) => any
-        = async (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage: boolean = false) => {
+
+
+    const SendRequest: (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage: boolean = false, baseURL?: string | undefined) => {
 
             var { errorMessage, response } = await send({
+                baseURL: baseURL,
                 method: method,
                 url: url,
                 data: data,
@@ -39,24 +42,24 @@ export const UseHttpAssistant = () => {
         }
 
 
-    const Get: (url: string, data?: any, noErrorMessage?: boolean) => any
-        = async (url: string, data?: any, noErrorMessage?: boolean) => {
-            return SendRequest(Http.GET, url, data, undefined, noErrorMessage)
+    const Get: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
+            return SendRequest(Http.GET, url, data, undefined, noErrorMessage, baseURL)
         }
 
-    const GetFile: (url: string, data?: any, noErrorMessage?: boolean) => any
-        = async (url: string, data?: any, noErrorMessage?: boolean) => {
-            return SendRequest(Http.GET, url, data, "blob", noErrorMessage)
+    const GetFile: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
+            return SendRequest(Http.GET, url, data, "blob", noErrorMessage, baseURL)
         }
 
-    const Post: (url: string, data?: any, noErrorMessage?: boolean) => any
-        = async (url: string, data?: any, noErrorMessage?: boolean) => {
-            return SendRequest(Http.POST, url, data, undefined, noErrorMessage)
+    const Post: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
+            return SendRequest(Http.POST, url, data, undefined, noErrorMessage, baseURL)
         }
 
-    const Put: (url: string, data?: any, noErrorMessage?: boolean) => any
-        = async (url: string, data?: any, noErrorMessage?: boolean) => {
-            return SendRequest(Http.PUT, url, data, undefined, noErrorMessage)
+    const Put: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
+            return SendRequest(Http.PUT, url, data, undefined, noErrorMessage, baseURL)
         }
 
 

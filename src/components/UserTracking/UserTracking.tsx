@@ -71,6 +71,13 @@ export const UseUserTracking = () => {
 
     const UserTrackingConnection = () => {
 
+        var url = process.env.REACT_APP_USERTRAKING_ADDRESS;
+
+        if (!url) {
+            return undefined
+        }
+
+
         const connection = new signalR.HubConnectionBuilder()
             .withUrl(process.env.REACT_APP_USERTRAKING_ADDRESS,
                 {
