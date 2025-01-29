@@ -8,12 +8,10 @@ export const UseHttpAssistant = () => {
 
     var { isLoading, send } = useHttpClient()
 
-
-
     const SendRequest: (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage?: boolean, baseURL?: string | undefined) => any
         = async (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage: boolean = false, baseURL?: string | undefined) => {
 
-            var { errorMessage, response } = await send({
+            var { errorMessage, response, dontShowMessage } = await send({
                 baseURL: baseURL,
                 method: method,
                 url: url,
@@ -22,7 +20,8 @@ export const UseHttpAssistant = () => {
             },
                 responseType
             )
-            if (errorMessage && !noErrorMessage) {
+
+            if (errorMessage && !noErrorMessage && !dontShowMessage) {
                 toast.error(errorMessage, {
                     position: "bottom-center",
                     autoClose: 5000,

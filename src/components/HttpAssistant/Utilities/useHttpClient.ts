@@ -8,7 +8,8 @@ import { UserTrackingLogMessage, UseUserTracking } from '../../UserTracking/User
 interface Response<T> {
     response: T | null;
     errorMessage: string | null;
-    statusCode: string
+    statusCode: string,
+    dontShowMessage: boolean
 }
 
 export interface UseHttpClientResponse<T> {
@@ -34,6 +35,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
         request: RequestObject,
         responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata'
     ) => {
+
         setIsLoading(true);
         var logMessage: UserTrackingLogMessage = { message: "Http Request => " + request.method, url: request.url }
 
@@ -52,19 +54,22 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
             var res = await AxiosInstance.request<T>(request);
             setIsLoading(false);
-
             LogAndForget(logMessage)
 
-            return { response: res.data, errorMessage: null, statusCode: '200' };
+            return { response: res.data, errorMessage: null, statusCode: '200', dontShowMessage: false };
 
         } catch (error: any) {
 
             setIsLoading(false);
             let errorMessage: string = '';
+            let dontShowMessage: boolean = false;
+
             var responetError = error?.response?.data
 
             if (error.response?.status === 401) {
-                errorMessage = responetError?.message ?? "You are unauthorized to access this resource."
+
+                //errorMessage = responetError?.message ?? "You are unauthorized to access this resource."
+                dontShowMessage = true
                 logout()
             } else if (responetError?.failed === true && responetError?.validationErrors && Object.keys(responetError?.validationErrors).length > 0) {
 
@@ -96,7 +101,8 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
             } else if (axios.isAxiosError(error) && error.response?.status === 401) {
 
-                errorMessage = 'UnAuthorized';
+                // errorMessage = 'UnAuthorized';
+                dontShowMessage = true
                 logout()
 
             }
@@ -117,7 +123,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
             LogAndForget(logMessage)
 
-            return { response: null, errorMessage, statusCode: error.response?.status };
+            return { response: null, errorMessage, statusCode: error.response?.status, dontShowMessage: dontShowMessage };
         }
     }
 
