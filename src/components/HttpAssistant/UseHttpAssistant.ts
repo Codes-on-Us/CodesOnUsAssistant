@@ -66,13 +66,12 @@ export const UseHttpAssistant = () => {
             return SendRequest(Http.PUT, url, data, undefined, noErrorMessage, baseURL)
         }
 
-
     return {
         isLoading,
         Get,
         Post,
         Put,
-        GetFile
+        GetFile,
+        PostFile
     }
 }
-
