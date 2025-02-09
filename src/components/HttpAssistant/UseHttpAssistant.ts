@@ -51,6 +51,11 @@ export const UseHttpAssistant = () => {
             return SendRequest(Http.GET, url, data, "blob", noErrorMessage, baseURL)
         }
 
+    const PostFile: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
+            return SendRequest(Http.POST, url, data, "blob", noErrorMessage, baseURL)
+        }
+
     const Post: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
         = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
             return SendRequest(Http.POST, url, data, undefined, noErrorMessage, baseURL)
