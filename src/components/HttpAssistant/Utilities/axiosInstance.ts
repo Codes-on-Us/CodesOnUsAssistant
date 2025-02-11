@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 const instance = axios.create({
     withCredentials: true,
     baseURL: process.env.REACT_APP_BASE_URL,
@@ -9,7 +8,6 @@ const instance = axios.create({
         'Content-Type': 'application/json',
     },
     timeout: 60 * 1000,
-
     transformRequest: [(data) => {
         if (data instanceof FormData) {
             return data;

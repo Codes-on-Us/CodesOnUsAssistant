@@ -60,7 +60,6 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
             return { response: res.data, errorMessage: null, statusCode: '200', dontShowMessage: false  , error: undefined };
 
         } catch (error: any) {
-
             setIsLoading(false);
             let errorMessage: string = '';
             let dontShowMessage: boolean = false;
@@ -124,7 +123,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
             LogAndForget(logMessage)
 
-            return { response: null, errorMessage, statusCode: error.response?.status, dontShowMessage: dontShowMessage , error: responetError };
+            return { response: null, errorMessage, statusCode: error.response?.status, dontShowMessage: dontShowMessage , error: error };
         }
     }
 
