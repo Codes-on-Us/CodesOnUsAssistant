@@ -9,7 +9,8 @@ interface Response<T> {
     response: T | null;
     errorMessage: string | null;
     statusCode: string,
-    dontShowMessage: boolean
+    dontShowMessage: boolean ,
+    error : any
 }
 
 export interface UseHttpClientResponse<T> {
@@ -56,7 +57,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
             setIsLoading(false);
             LogAndForget(logMessage)
 
-            return { response: res.data, errorMessage: null, statusCode: '200', dontShowMessage: false };
+            return { response: res.data, errorMessage: null, statusCode: '200', dontShowMessage: false  , error: undefined };
 
         } catch (error: any) {
 
@@ -123,7 +124,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
             LogAndForget(logMessage)
 
-            return { response: null, errorMessage, statusCode: error.response?.status, dontShowMessage: dontShowMessage };
+            return { response: null, errorMessage, statusCode: error.response?.status, dontShowMessage: dontShowMessage , error: responetError };
         }
     }
 

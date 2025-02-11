@@ -11,7 +11,37 @@ export const UseHttpAssistant = () => {
     const SendRequest: (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage?: boolean, baseURL?: string | undefined) => any
         = async (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage: boolean = false, baseURL?: string | undefined) => {
 
-            var { errorMessage, response, dontShowMessage } = await send({
+            var { errorMessage, response, dontShowMessage, } = await send({
+                baseURL: baseURL,
+                method: method,
+                url: url,
+                data: data,
+                timeout: 5 * 60 * 1000
+            },
+                responseType
+            )
+
+            if (errorMessage && !noErrorMessage && !dontShowMessage) {
+                toast.error(errorMessage, {
+                    position: "bottom-center",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                });
+
+                return undefined
+            }
+            return response
+        }
+
+    const SendRequestWithError: (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (method: Http, url: string, data?: any, responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata', noErrorMessage: boolean = false, baseURL?: string | undefined) => {
+
+            var { errorMessage, response, dontShowMessage, error } = await send({
                 baseURL: baseURL,
                 method: method,
                 url: url,
@@ -36,8 +66,7 @@ export const UseHttpAssistant = () => {
                 return undefined
             }
 
-            return response
-
+            return { response, error }
         }
 
 
@@ -56,6 +85,11 @@ export const UseHttpAssistant = () => {
             return SendRequest(Http.POST, url, data, "blob", noErrorMessage, baseURL)
         }
 
+    const PostFileWithError: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
+            return SendRequestWithError(Http.POST, url, data, "blob", noErrorMessage, baseURL)
+        }
+
     const Post: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
         = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
             return SendRequest(Http.POST, url, data, undefined, noErrorMessage, baseURL)
@@ -72,6 +106,7 @@ export const UseHttpAssistant = () => {
         Post,
         Put,
         GetFile,
-        PostFile
+        PostFile,
+        PostFileWithError
     }
 }
