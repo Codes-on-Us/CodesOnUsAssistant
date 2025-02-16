@@ -33,7 +33,7 @@ export const AssistantProvicer: FC<{
                         <AciveTrackingContext.Provider value={aciveTrackingState}>
                             {children}
                             <ToastContainer />
-                            <UserTracking aciveTracking={tracking} />
+                            {/* <UserTracking aciveTracking={tracking} /> */}
                         </AciveTrackingContext.Provider>
                     </TrakingConnectionContext.Provider>
                 </UserContext.Provider>

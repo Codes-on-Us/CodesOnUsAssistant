@@ -24,7 +24,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const userState = useContext(UserContext);
-    const { LogAndForget } = UseUserTracking()
+    // const { LogAndForget } = UseUserTracking()
 
 
     const logout = () => {
@@ -55,7 +55,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
             var res = await AxiosInstance.request<T>(request);
             setIsLoading(false);
-            LogAndForget(logMessage)
+            // LogAndForget(logMessage)
 
             return { response: res.data, errorMessage: null, statusCode: '200', dontShowMessage: false  , error: undefined };
 
@@ -121,7 +121,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
                 logMessage.response = "" + (responetError.message as any)
             }
 
-            LogAndForget(logMessage)
+            // LogAndForget(logMessage)
 
             return { response: null, errorMessage, statusCode: error.response?.status, dontShowMessage: dontShowMessage , error: error };
         }
