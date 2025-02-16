@@ -2,7 +2,6 @@ import React, { createContext, FC, ReactNode, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { IUserAssistant } from "./UserAssistant/UserAssistant";
 import { HubConnection } from '@microsoft/signalr/src/HubConnection'
-import { UserTracking } from "./UserTracking/UserTracking";
 
 export const UserContext = createContext<[any | undefined, React.Dispatch<React.SetStateAction<string | undefined>>] | undefined>(undefined);
 export const UserAssistantContext = createContext<[IUserAssistant, React.Dispatch<React.SetStateAction<IUserAssistant>>] | undefined>(undefined);
@@ -15,8 +14,7 @@ export const AssistantProvicer: FC<{
     tracking?: boolean,
     children: ReactNode | ReactNode[]
 }> = ({
-    children,
-    tracking
+    children
 }) => {
 
         const userState = useState<any>()

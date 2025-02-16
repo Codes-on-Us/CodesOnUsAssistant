@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import AxiosInstance from "./axiosInstance"
 import axios, { AxiosRequestConfig } from 'axios';
 import { UserContext } from '../../AssistantProvider';
-import { UserTrackingLogMessage, UseUserTracking } from '../../UserTracking/UserTracking';
+import { UserTrackingLogMessage } from '../../UserTracking/UserTracking';
 
 
 interface Response<T> {
