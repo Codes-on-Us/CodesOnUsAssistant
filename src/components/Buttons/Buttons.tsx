@@ -10,36 +10,37 @@ interface Props extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className
     startIcon?: ReactNode
 }
 
+
+const SmallButtons = styled.button<{
+    $backhroudColor?: string,
+    $color: string,
+    $fontSize: string,
+    $padding?: string,
+    $fontWieght?: string,
+    $height?: string
+}>`
+    background-color: ${props => props.$backhroudColor};
+    color: ${props => props.$color};
+    font-size:${props => props.$fontSize};
+    border-radius: 4px;
+    border: 0;
+    padding: ${props => props.$padding ?? "5px 10px"} ;
+    cursor: pointer;
+    font-weight: ${props => props.$fontWieght ? props.$fontWieght : ""} ;
+    height: ${props => props.$height ? props.$height : ""}  ;
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+
+    svg{
+        font-size: 25px
+    }
+`;
+
+
 export const Button: FC<Props> = (props) => {
 
     const { size = "normal", schema = "blue" } = props
-
-    const SmallButtons = styled.button<{
-        $backhroudColor?: string,
-        $color: string,
-        $fontSize: string,
-        $padding?: string,
-        $fontWieght?: string,
-        $height?: string
-    }>`
-        background-color: ${props => props.$backhroudColor};
-        color: ${props => props.$color};
-        font-size:${props => props.$fontSize};
-        border-radius: 4px;
-        border: 0;
-        padding: ${props => props.$padding ?? "5px 10px"} ;
-        cursor: pointer;
-        font-weight: ${props => props.$fontWieght ? props.$fontWieght : ""} ;
-        height: ${props => props.$height ? props.$height : ""}  ;
-        display: inline-flex;
-        gap: 5px;
-        align-items: center;
-
-        svg{
-            font-size: 25px
-        }
-`;
-
 
     if (size === "small" && schema === "cyan")
         return <SmallButtons $fontSize="13px" $color="#fff" $backhroudColor="#159bb3" {...props} > {props.startIcon}{props.children} </SmallButtons>
