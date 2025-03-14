@@ -75,6 +75,11 @@ export const UseHttpAssistant = () => {
             return SendRequest(Http.GET, url, data, undefined, noErrorMessage, baseURL)
         }
 
+    const Delete: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
+        = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
+            return SendRequest(Http.DELETE, url, data, undefined, noErrorMessage, baseURL)
+        }
+
     const GetFile: (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => any
         = async (url: string, data?: any, noErrorMessage?: boolean, baseURL?: string | undefined) => {
             return SendRequest(Http.GET, url, data, "blob", noErrorMessage, baseURL)
@@ -101,6 +106,7 @@ export const UseHttpAssistant = () => {
         }
 
     return {
+        Delete,
         isLoading,
         Get,
         Post,
