@@ -37,8 +37,6 @@ export const UseHttpAssistant = () => {
     baseURL?: string | undefined,
     isPublicFiles?: boolean
   ) => {
-
-
     if (isPublicFiles) {
       try {
         const response: AxiosResponse<Blob> = await axios.get(url, {
@@ -154,7 +152,6 @@ export const UseHttpAssistant = () => {
     return SendRequest(Http.GET, url, data, undefined, noErrorMessage, baseURL);
   };
 
-  
   const GetWithErrorResponse: (
     url: string,
     data?: any,
@@ -166,7 +163,14 @@ export const UseHttpAssistant = () => {
     noErrorMessage?: boolean,
     baseURL?: string | undefined
   ) => {
-    return SendRequestWithError(Http.GET, url, data, undefined, noErrorMessage, baseURL);
+    return SendRequestWithError(
+      Http.GET,
+      url,
+      data,
+      undefined,
+      noErrorMessage,
+      baseURL
+    );
   };
 
   const Delete: (
@@ -293,5 +297,6 @@ export const UseHttpAssistant = () => {
     GetFile,
     PostFile,
     PostFileWithError,
+    GetWithErrorResponse,
   };
 };
