@@ -80,21 +80,7 @@ export const UseHttpAssistant = () => {
     }
   };
 
-  const SendRequestWithError: (
-    method: Http,
-    url: string,
-    data?: any,
-    responseType?:
-      | "arraybuffer"
-      | "blob"
-      | "document"
-      | "json"
-      | "text"
-      | "stream"
-      | "formdata",
-    noErrorMessage?: boolean,
-    baseURL?: string | undefined
-  ) => any = async (
+  const SendRequestWithError = async (
     method: Http,
     url: string,
     data?: any,
@@ -132,7 +118,7 @@ export const UseHttpAssistant = () => {
         theme: "colored",
       });
 
-      return undefined;
+      return { response, error };
     }
 
     return { response, error };
@@ -152,12 +138,7 @@ export const UseHttpAssistant = () => {
     return SendRequest(Http.GET, url, data, undefined, noErrorMessage, baseURL);
   };
 
-  const GetWithErrorResponse: (
-    url: string,
-    data?: any,
-    noErrorMessage?: boolean,
-    baseURL?: string | undefined
-  ) => any = async (
+  const GetWithErrorResponse = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
