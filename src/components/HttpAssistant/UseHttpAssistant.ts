@@ -4,7 +4,7 @@ import { useHttpClient } from "./Utilities/useHttpClient";
 import axios, { AxiosResponse } from "axios";
 
 export const UseHttpAssistant = () => {
-  var { isLoading, send } = useHttpClient();
+  var { isLoading, send } = useHttpClient<any>();
 
   const SendRequest: (
     method: Http,
