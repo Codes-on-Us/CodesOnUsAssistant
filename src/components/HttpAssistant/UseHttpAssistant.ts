@@ -2,16 +2,89 @@ import { toast } from "react-toastify";
 import { Http } from "./Utilities/Http";
 import { useHttpClient } from "./Utilities/useHttpClient";
 import axios, { AxiosResponse } from "axios";
-import { useContext } from "react";
-import { HttpCacheContext } from "../AssistantProvider";
+import { useHttpCache } from "../AssistantProvider";
+import { isReduxAvailable, getReduxStore } from "../../store/reduxManager";
+import {
+  setCacheEntry,
+  selectCacheEntry,
+  selectPendingRequest,
+  setPendingRequest,
+  removePendingRequest,
+} from "../../store/httpCacheSlice";
 
 export const UseHttpAssistant = () => {
   var { isLoading, send } = useHttpClient<any>();
-  const cacheContext = useContext(HttpCacheContext);
-  const [cache, setCache] = cacheContext || [new Map(), () => {}];
+  const { cache, setCache, pendingRequests, setPendingRequests, localPendingRef } =
+    useHttpCache();
 
-  const generateCacheKey = (method: Http, url: string, data?: any, baseURL?: string) => {
+  // Track if Redux is being used
+  const useRedux = isReduxAvailable() && getReduxStore();
+  const reduxStore = useRedux ? getReduxStore() : null;
+
+  // Fallback to Context API if Redux not available
+  const contextCache = cache;
+  const contextSetCache = setCache;
+  const contextPendingRequests = pendingRequests;
+  const contextSetPendingRequests = setPendingRequests;
+  const contextLocalPendingRef = localPendingRef;
+
+  const generateCacheKey = (
+    method: Http,
+    url: string,
+    data?: any,
+    baseURL?: string,
+  ) => {
     return `${method}:${baseURL || ""}:${url}:${JSON.stringify(data || {})}`;
+  };
+
+  // Helper functions to work with Redux or Context
+  const getCachedData = (cacheKey: string) => {
+    if (useRedux && reduxStore) {
+      const state = reduxStore.getState();
+      const entry = selectCacheEntry(state, cacheKey);
+      return entry?.data;
+    }
+    return contextCache.get(cacheKey);
+  };
+
+  const setPendingInCache = (cacheKey: string, promise: Promise<any>) => {
+    if (useRedux && reduxStore) {
+      reduxStore.dispatch(setPendingRequest({ key: cacheKey, promise }));
+    } else {
+      contextLocalPendingRef.current.set(cacheKey, promise);
+      const newPending = new Map(contextPendingRequests);
+      newPending.set(cacheKey, promise);
+      contextSetPendingRequests(newPending);
+    }
+  };
+
+  const getCachedPending = (cacheKey: string) => {
+    if (useRedux && reduxStore) {
+      const state = reduxStore.getState();
+      return selectPendingRequest(state, cacheKey);
+    }
+    return contextLocalPendingRef.current.get(cacheKey);
+  };
+
+  const cacheResponseData = (cacheKey: string, data: any) => {
+    if (useRedux && reduxStore) {
+      reduxStore.dispatch(setCacheEntry({ key: cacheKey, data }));
+    } else {
+      const newCache = new Map(contextCache);
+      newCache.set(cacheKey, data);
+      contextSetCache(newCache);
+    }
+  };
+
+  const removePendingFromCache = (cacheKey: string) => {
+    if (useRedux && reduxStore) {
+      reduxStore.dispatch(removePendingRequest(cacheKey));
+    } else {
+      contextLocalPendingRef.current.delete(cacheKey);
+      const newPending = new Map(contextPendingRequests);
+      newPending.delete(cacheKey);
+      contextSetPendingRequests(newPending);
+    }
   };
 
   const SendRequest: (
@@ -63,43 +136,65 @@ export const UseHttpAssistant = () => {
     } else {
       const cacheKey = generateCacheKey(method, url, data, baseURL);
 
-      if (useCache && cache.has(cacheKey)) {
-        return cache.get(cacheKey);
+      // Check cache first
+      if (useCache) {
+        const cachedData = getCachedData(cacheKey);
+        if (cachedData !== undefined) {
+          return cachedData;
+        }
+
+        // Check pending requests
+        const pendingPromise = getCachedPending(cacheKey);
+        if (pendingPromise) {
+          return pendingPromise;
+        }
       }
 
-      var { errorMessage, response, dontShowMessage } = await send(
-        {
-          baseURL: baseURL,
-          method: method,
-          url: url,
-          data: data,
-          timeout: 5 * 60 * 1000,
-        },
-        responseType,
-      );
+      const requestPromise = (async () => {
+        try {
+          var { errorMessage, response, dontShowMessage } = await send(
+            {
+              baseURL: baseURL,
+              method: method,
+              url: url,
+              data: data,
+              timeout: 5 * 60 * 1000,
+            },
+            responseType,
+          );
 
-      if (errorMessage && !noErrorMessage && !dontShowMessage) {
-        toast.error(errorMessage, {
-          position: "bottom-center",
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+          if (errorMessage && !noErrorMessage && !dontShowMessage) {
+            toast.error(errorMessage, {
+              position: "bottom-center",
+              autoClose: 5000,
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
 
-        return undefined;
+            return undefined;
+          }
+
+          if (useCache && response) {
+            cacheResponseData(cacheKey, response);
+          }
+
+          return response;
+        } finally {
+          if (useCache) {
+            removePendingFromCache(cacheKey);
+          }
+        }
+      })();
+
+      if (useCache) {
+        setPendingInCache(cacheKey, requestPromise);
       }
 
-      if (useCache && response) {
-        const newCache = new Map(cache);
-        newCache.set(cacheKey, response);
-        setCache(newCache);
-      }
-
-      return response;
+      return requestPromise;
     }
   };
 
@@ -121,43 +216,66 @@ export const UseHttpAssistant = () => {
   ) => {
     const cacheKey = generateCacheKey(method, url, data, baseURL);
 
-    if (useCache && cache.has(cacheKey)) {
-      return { response: cache.get(cacheKey), error: null };
+    // Check cache first
+    if (useCache) {
+      const cachedData = getCachedData(cacheKey);
+      if (cachedData !== undefined) {
+        return { response: cachedData, error: null };
+      }
+
+      // Check pending requests
+      const pendingPromise = getCachedPending(cacheKey);
+      if (pendingPromise) {
+        const result = await pendingPromise;
+        return { response: result, error: null };
+      }
     }
 
-    var { errorMessage, response, dontShowMessage, error } = await send(
-      {
-        baseURL: baseURL,
-        method: method,
-        url: url,
-        data: data,
-        timeout: 5 * 60 * 1000,
-      },
-      responseType,
-    );
+    const requestPromise = (async () => {
+      try {
+        var { errorMessage, response, dontShowMessage, error } = await send(
+          {
+            baseURL: baseURL,
+            method: method,
+            url: url,
+            data: data,
+            timeout: 5 * 60 * 1000,
+          },
+          responseType,
+        );
 
-    if (errorMessage && !noErrorMessage && !dontShowMessage) {
-      toast.error(errorMessage, {
-        position: "bottom-center",
-        autoClose: 5000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+        if (errorMessage && !noErrorMessage && !dontShowMessage) {
+          toast.error(errorMessage, {
+            position: "bottom-center",
+            autoClose: 5000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
 
-      return { response, error };
+          return { response, error };
+        }
+
+        if (useCache && response) {
+          cacheResponseData(cacheKey, response);
+        }
+
+        return { response, error };
+      } finally {
+        if (useCache) {
+          removePendingFromCache(cacheKey);
+        }
+      }
+    })();
+
+    if (useCache) {
+      setPendingInCache(cacheKey, requestPromise);
     }
 
-    if (useCache && response) {
-      const newCache = new Map(cache);
-      newCache.set(cacheKey, response);
-      setCache(newCache);
-    }
-
-    return { response, error };
+    return requestPromise;
   };
 
   const Get: (
@@ -173,7 +291,16 @@ export const UseHttpAssistant = () => {
     baseURL?: string | undefined,
     useCache: boolean = false,
   ) => {
-    return SendRequest(Http.GET, url, data, undefined, noErrorMessage, baseURL, false, useCache);
+    return SendRequest(
+      Http.GET,
+      url,
+      data,
+      undefined,
+      noErrorMessage,
+      baseURL,
+      false,
+      useCache,
+    );
   };
 
   const GetWithErrorResponse = async (
@@ -259,7 +386,16 @@ export const UseHttpAssistant = () => {
     baseURL?: string | undefined,
     useCache: boolean = false,
   ) => {
-    return SendRequest(Http.POST, url, data, "blob", noErrorMessage, baseURL, false, useCache);
+    return SendRequest(
+      Http.POST,
+      url,
+      data,
+      "blob",
+      noErrorMessage,
+      baseURL,
+      false,
+      useCache,
+    );
   };
 
   const PostFileWithError: (
@@ -324,7 +460,16 @@ export const UseHttpAssistant = () => {
     baseURL?: string | undefined,
     useCache: boolean = false,
   ) => {
-    return SendRequest(Http.PUT, url, data, undefined, noErrorMessage, baseURL, false, useCache);
+    return SendRequest(
+      Http.PUT,
+      url,
+      data,
+      undefined,
+      noErrorMessage,
+      baseURL,
+      false,
+      useCache,
+    );
   };
 
   return {
