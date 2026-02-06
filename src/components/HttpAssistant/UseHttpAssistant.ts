@@ -2,9 +2,17 @@ import { toast } from "react-toastify";
 import { Http } from "./Utilities/Http";
 import { useHttpClient } from "./Utilities/useHttpClient";
 import axios, { AxiosResponse } from "axios";
+import { useContext } from "react";
+import { HttpCacheContext } from "../AssistantProvider";
 
 export const UseHttpAssistant = () => {
   var { isLoading, send } = useHttpClient<any>();
+  const cacheContext = useContext(HttpCacheContext);
+  const [cache, setCache] = cacheContext || [new Map(), () => {}];
+
+  const generateCacheKey = (method: Http, url: string, data?: any, baseURL?: string) => {
+    return `${method}:${baseURL || ""}:${url}:${JSON.stringify(data || {})}`;
+  };
 
   const SendRequest: (
     method: Http,
@@ -20,7 +28,8 @@ export const UseHttpAssistant = () => {
       | "formdata",
     noErrorMessage?: boolean,
     baseURL?: string | undefined,
-    isPublicFiles?: boolean
+    isPublicFiles?: boolean,
+    useCache?: boolean,
   ) => any = async (
     method: Http,
     url: string,
@@ -35,7 +44,8 @@ export const UseHttpAssistant = () => {
       | "formdata",
     noErrorMessage: boolean = false,
     baseURL?: string | undefined,
-    isPublicFiles?: boolean
+    isPublicFiles?: boolean,
+    useCache: boolean = false,
   ) => {
     if (isPublicFiles) {
       try {
@@ -51,6 +61,12 @@ export const UseHttpAssistant = () => {
         throw error;
       }
     } else {
+      const cacheKey = generateCacheKey(method, url, data, baseURL);
+
+      if (useCache && cache.has(cacheKey)) {
+        return cache.get(cacheKey);
+      }
+
       var { errorMessage, response, dontShowMessage } = await send(
         {
           baseURL: baseURL,
@@ -59,7 +75,7 @@ export const UseHttpAssistant = () => {
           data: data,
           timeout: 5 * 60 * 1000,
         },
-        responseType
+        responseType,
       );
 
       if (errorMessage && !noErrorMessage && !dontShowMessage) {
@@ -76,6 +92,13 @@ export const UseHttpAssistant = () => {
 
         return undefined;
       }
+
+      if (useCache && response) {
+        const newCache = new Map(cache);
+        newCache.set(cacheKey, response);
+        setCache(newCache);
+      }
+
       return response;
     }
   };
@@ -93,8 +116,15 @@ export const UseHttpAssistant = () => {
       | "stream"
       | "formdata",
     noErrorMessage: boolean = false,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache: boolean = false,
   ) => {
+    const cacheKey = generateCacheKey(method, url, data, baseURL);
+
+    if (useCache && cache.has(cacheKey)) {
+      return { response: cache.get(cacheKey), error: null };
+    }
+
     var { errorMessage, response, dontShowMessage, error } = await send(
       {
         baseURL: baseURL,
@@ -103,7 +133,7 @@ export const UseHttpAssistant = () => {
         data: data,
         timeout: 5 * 60 * 1000,
       },
-      responseType
+      responseType,
     );
 
     if (errorMessage && !noErrorMessage && !dontShowMessage) {
@@ -121,6 +151,12 @@ export const UseHttpAssistant = () => {
       return { response, error };
     }
 
+    if (useCache && response) {
+      const newCache = new Map(cache);
+      newCache.set(cacheKey, response);
+      setCache(newCache);
+    }
+
     return { response, error };
   };
 
@@ -128,21 +164,24 @@ export const UseHttpAssistant = () => {
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache?: boolean,
   ) => any = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache: boolean = false,
   ) => {
-    return SendRequest(Http.GET, url, data, undefined, noErrorMessage, baseURL);
+    return SendRequest(Http.GET, url, data, undefined, noErrorMessage, baseURL, false, useCache);
   };
 
   const GetWithErrorResponse = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache: boolean = false,
   ) => {
     return SendRequestWithError(
       Http.GET,
@@ -150,7 +189,8 @@ export const UseHttpAssistant = () => {
       data,
       undefined,
       noErrorMessage,
-      baseURL
+      baseURL,
+      useCache,
     );
   };
 
@@ -158,12 +198,14 @@ export const UseHttpAssistant = () => {
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache?: boolean,
   ) => any = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache: boolean = false,
   ) => {
     return SendRequest(
       Http.DELETE,
@@ -171,7 +213,9 @@ export const UseHttpAssistant = () => {
       data,
       undefined,
       noErrorMessage,
-      baseURL
+      baseURL,
+      false,
+      useCache,
     );
   };
 
@@ -180,13 +224,15 @@ export const UseHttpAssistant = () => {
     data?: any,
     noErrorMessage?: boolean,
     baseURL?: string | undefined,
-    isPublicFiles?: boolean
+    isPublicFiles?: boolean,
+    useCache?: boolean,
   ) => any = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
     baseURL?: string | undefined,
-    isPublicFiles?: boolean
+    isPublicFiles?: boolean,
+    useCache: boolean = false,
   ) => {
     return SendRequest(
       Http.GET,
@@ -195,7 +241,8 @@ export const UseHttpAssistant = () => {
       "blob",
       noErrorMessage,
       baseURL,
-      isPublicFiles
+      isPublicFiles,
+      useCache,
     );
   };
 
@@ -203,26 +250,30 @@ export const UseHttpAssistant = () => {
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache?: boolean,
   ) => any = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache: boolean = false,
   ) => {
-    return SendRequest(Http.POST, url, data, "blob", noErrorMessage, baseURL);
+    return SendRequest(Http.POST, url, data, "blob", noErrorMessage, baseURL, false, useCache);
   };
 
   const PostFileWithError: (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache?: boolean,
   ) => any = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache: boolean = false,
   ) => {
     return SendRequestWithError(
       Http.POST,
@@ -230,7 +281,8 @@ export const UseHttpAssistant = () => {
       data,
       "blob",
       noErrorMessage,
-      baseURL
+      baseURL,
+      useCache,
     );
   };
 
@@ -238,12 +290,14 @@ export const UseHttpAssistant = () => {
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache?: boolean,
   ) => any = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache: boolean = false,
   ) => {
     return SendRequest(
       Http.POST,
@@ -251,7 +305,9 @@ export const UseHttpAssistant = () => {
       data,
       undefined,
       noErrorMessage,
-      baseURL
+      baseURL,
+      false,
+      useCache,
     );
   };
 
@@ -259,14 +315,16 @@ export const UseHttpAssistant = () => {
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache?: boolean,
   ) => any = async (
     url: string,
     data?: any,
     noErrorMessage?: boolean,
-    baseURL?: string | undefined
+    baseURL?: string | undefined,
+    useCache: boolean = false,
   ) => {
-    return SendRequest(Http.PUT, url, data, undefined, noErrorMessage, baseURL);
+    return SendRequest(Http.PUT, url, data, undefined, noErrorMessage, baseURL, false, useCache);
   };
 
   return {

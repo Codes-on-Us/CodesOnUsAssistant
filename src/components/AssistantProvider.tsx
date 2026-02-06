@@ -9,6 +9,8 @@ export const UserAssistantContext = createContext<[IUserAssistant, React.Dispatc
 export const TrakingConnectionContext = createContext<[HubConnection | undefined, React.Dispatch<React.SetStateAction<HubConnection | undefined>>] | undefined>(undefined);
 export const AciveTrackingContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined>(undefined);
 
+export const HttpCacheContext = createContext<[Map<string, any>, React.Dispatch<React.SetStateAction<Map<string, any>>>] | undefined>(undefined);
+
 
 export const AssistantProvicer: FC<{
     tracking?: boolean,
@@ -22,6 +24,7 @@ export const AssistantProvicer: FC<{
 
         const trakingConnection = useState<HubConnection>()
         const aciveTrackingState = useState(false)
+        const httpCacheState = useState<Map<string, any>>(new Map())
 
 
         return (
@@ -29,9 +32,11 @@ export const AssistantProvicer: FC<{
                 <UserContext.Provider value={userState}>
                     <TrakingConnectionContext.Provider value={trakingConnection}>
                         <AciveTrackingContext.Provider value={aciveTrackingState}>
-                            {children}
-                            <ToastContainer />
-                            {/* <UserTracking aciveTracking={tracking} /> */}
+                            <HttpCacheContext.Provider value={httpCacheState}>
+                                {children}
+                                <ToastContainer />
+                                {/* <UserTracking aciveTracking={tracking} /> */}
+                            </HttpCacheContext.Provider>
                         </AciveTrackingContext.Provider>
                     </TrakingConnectionContext.Provider>
                 </UserContext.Provider>
