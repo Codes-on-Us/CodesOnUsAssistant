@@ -7,9 +7,6 @@ import { isReduxAvailable, getReduxStore } from "../../store/reduxManager";
 import {
   setCacheEntry,
   selectCacheEntry,
-  selectPendingRequest,
-  setPendingRequest,
-  removePendingRequest,
 } from "../../store/httpCacheSlice";
 
 export const UseHttpAssistant = () => {
@@ -48,21 +45,15 @@ export const UseHttpAssistant = () => {
   };
 
   const setPendingInCache = (cacheKey: string, promise: Promise<any>) => {
-    if (useRedux && reduxStore) {
-      reduxStore.dispatch(setPendingRequest({ key: cacheKey, promise }));
-    } else {
-      contextLocalPendingRef.current.set(cacheKey, promise);
-      const newPending = new Map(contextPendingRequests);
-      newPending.set(cacheKey, promise);
-      contextSetPendingRequests(newPending);
-    }
+    // Always use Context API for pending requests (Promises cannot be stored in Redux)
+    contextLocalPendingRef.current.set(cacheKey, promise);
+    const newPending = new Map(contextPendingRequests);
+    newPending.set(cacheKey, promise);
+    contextSetPendingRequests(newPending);
   };
 
   const getCachedPending = (cacheKey: string) => {
-    if (useRedux && reduxStore) {
-      const state = reduxStore.getState();
-      return selectPendingRequest(state, cacheKey);
-    }
+    // Always use Context API for pending requests
     return contextLocalPendingRef.current.get(cacheKey);
   };
 
@@ -77,14 +68,11 @@ export const UseHttpAssistant = () => {
   };
 
   const removePendingFromCache = (cacheKey: string) => {
-    if (useRedux && reduxStore) {
-      reduxStore.dispatch(removePendingRequest(cacheKey));
-    } else {
-      contextLocalPendingRef.current.delete(cacheKey);
-      const newPending = new Map(contextPendingRequests);
-      newPending.delete(cacheKey);
-      contextSetPendingRequests(newPending);
-    }
+    // Always use Context API for pending requests
+    contextLocalPendingRef.current.delete(cacheKey);
+    const newPending = new Map(contextPendingRequests);
+    newPending.delete(cacheKey);
+    contextSetPendingRequests(newPending);
   };
 
   const SendRequest: (

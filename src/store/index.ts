@@ -28,17 +28,12 @@ export {
   setCacheEntry,
   removeCacheEntry,
   clearCache,
-  setPendingRequest,
-  removePendingRequest,
-  clearPendingRequests,
 } from './httpCacheSlice';
 
 // Cache slice selectors
 export {
   selectCacheEntry,
-  selectPendingRequest,
   selectAllCache,
-  selectAllPendingRequests,
 } from './httpCacheSlice';
 
 export type { HttpCacheEntry, HttpCacheState } from './httpCacheSlice';

@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm view:*)"
+      "Bash(npm view:*)",
+      "Bash(npm run build:esm:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
