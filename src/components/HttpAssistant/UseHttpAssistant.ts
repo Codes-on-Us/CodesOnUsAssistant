@@ -9,14 +9,22 @@ import {
   selectCacheEntry,
 } from "../../store/httpCacheSlice";
 
-export const UseHttpAssistant = () => {
+export type CacheMode = 'redux' | 'context' | 'auto';
+
+export const UseHttpAssistant = (cacheMode: CacheMode = 'auto') => {
   var { isLoading, send } = useHttpClient<any>();
   const { cache, setCache, pendingRequests, setPendingRequests, localPendingRef, localCacheRef } =
     useHttpCache();
 
-  // Track if Redux is being used
-  const useRedux = isReduxAvailable() && getReduxStore();
-  const reduxStore = useRedux ? getReduxStore() : null;
+  // Determine cache mode - get Redux store once to avoid multiple calls
+  const reduxStoreInstance = isReduxAvailable() ? getReduxStore() : null;
+  const useRedux =
+    cacheMode === 'redux'
+      ? !!reduxStoreInstance
+      : cacheMode === 'context'
+      ? false
+      : (isReduxAvailable() && !!reduxStoreInstance); // 'auto' mode
+  const reduxStore = useRedux ? reduxStoreInstance : null;
 
   // Fallback to Context API if Redux not available
   const contextCache = cache;
@@ -140,6 +148,12 @@ export const UseHttpAssistant = () => {
         }
       }
 
+      // Check again for pending requests AFTER declaration (to catch requests created in this same tick)
+      let pendingFromRef = getCachedPending(cacheKey);
+      if (pendingFromRef) {
+        return pendingFromRef;
+      }
+
       const requestPromise = (async () => {
         try {
           var { errorMessage, response, dontShowMessage } = await send(
@@ -219,6 +233,13 @@ export const UseHttpAssistant = () => {
         const result = await pendingPromise;
         return { response: result, error: null };
       }
+    }
+
+    // Check again for pending requests AFTER declaration
+    let pendingFromRef = getCachedPending(cacheKey);
+    if (pendingFromRef) {
+      const result = await pendingFromRef;
+      return { response: result, error: null };
     }
 
     const requestPromise = (async () => {
