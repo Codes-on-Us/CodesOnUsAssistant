@@ -12,11 +12,13 @@ export const AciveTrackingContext = createContext<[boolean, React.Dispatch<React
 export const HttpCacheContext = createContext<[Map<string, any>, React.Dispatch<React.SetStateAction<Map<string, any>>>] | undefined>(undefined);
 export const HttpPendingContext = createContext<[Map<string, Promise<any>>, React.Dispatch<React.SetStateAction<Map<string, Promise<any>>>>] | undefined>(undefined);
 export const HttpLocalPendingContext = createContext<React.MutableRefObject<Map<string, Promise<any>>> | undefined>(undefined);
+export const HttpLocalCacheContext = createContext<React.MutableRefObject<Map<string, any>> | undefined>(undefined);
 
 export const useHttpCache = () => {
   const cacheContext = useContext(HttpCacheContext);
   const pendingContext = useContext(HttpPendingContext);
   const localPendingContext = useContext(HttpLocalPendingContext);
+  const localCacheContext = useContext(HttpLocalCacheContext);
 
   return {
     cache: cacheContext?.[0] || new Map(),
@@ -24,6 +26,7 @@ export const useHttpCache = () => {
     pendingRequests: pendingContext?.[0] || new Map(),
     setPendingRequests: pendingContext?.[1] || (() => {}),
     localPendingRef: localPendingContext || { current: new Map() },
+    localCacheRef: localCacheContext || { current: new Map() },
   };
 };
 
@@ -43,6 +46,7 @@ export const AssistantProvicer: FC<{
         const httpCacheState = useState<Map<string, any>>(new Map())
         const httpPendingState = useState<Map<string, Promise<any>>>(new Map())
         const httpLocalPendingRef = useRef<Map<string, Promise<any>>>(new Map())
+        const httpLocalCacheRef = useRef<Map<string, any>>(new Map())
 
         // Initialize Redux if available
         useEffect(() => {
@@ -63,9 +67,11 @@ export const AssistantProvicer: FC<{
                             <HttpCacheContext.Provider value={httpCacheState}>
                                 <HttpPendingContext.Provider value={httpPendingState}>
                                     <HttpLocalPendingContext.Provider value={httpLocalPendingRef}>
-                                        {children}
-                                        <ToastContainer />
-                                        {/* <UserTracking aciveTracking={tracking} /> */}
+                                        <HttpLocalCacheContext.Provider value={httpLocalCacheRef}>
+                                            {children}
+                                            <ToastContainer />
+                                            {/* <UserTracking aciveTracking={tracking} /> */}
+                                        </HttpLocalCacheContext.Provider>
                                     </HttpLocalPendingContext.Provider>
                                 </HttpPendingContext.Provider>
                             </HttpCacheContext.Provider>

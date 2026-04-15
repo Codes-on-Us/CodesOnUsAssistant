@@ -11,7 +11,7 @@ import {
 
 export const UseHttpAssistant = () => {
   var { isLoading, send } = useHttpClient<any>();
-  const { cache, setCache, pendingRequests, setPendingRequests, localPendingRef } =
+  const { cache, setCache, pendingRequests, setPendingRequests, localPendingRef, localCacheRef } =
     useHttpCache();
 
   // Track if Redux is being used
@@ -24,6 +24,7 @@ export const UseHttpAssistant = () => {
   const contextPendingRequests = pendingRequests;
   const contextSetPendingRequests = setPendingRequests;
   const contextLocalPendingRef = localPendingRef;
+  const contextLocalCacheRef = localCacheRef;
 
   const generateCacheKey = (
     method: Http,
@@ -41,7 +42,7 @@ export const UseHttpAssistant = () => {
       const entry = selectCacheEntry(state, cacheKey);
       return entry?.data;
     }
-    return contextCache.get(cacheKey);
+    return contextLocalCacheRef.current.get(cacheKey);
   };
 
   const setPendingInCache = (cacheKey: string, promise: Promise<any>) => {
@@ -61,6 +62,7 @@ export const UseHttpAssistant = () => {
     if (useRedux && reduxStore) {
       reduxStore.dispatch(setCacheEntry({ key: cacheKey, data }));
     } else {
+      contextLocalCacheRef.current.set(cacheKey, data);
       const newCache = new Map(contextCache);
       newCache.set(cacheKey, data);
       contextSetCache(newCache);
