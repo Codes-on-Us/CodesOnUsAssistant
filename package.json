@@ -1,6 +1,6 @@
 {
   "name": "@codes-on-us/assistant",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "A react component library with minimal setup",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -68,7 +68,6 @@
     }
   },
   "dependencies": {
-    "@microsoft/signalr": "^8.0.7",
     "axios": "^1.7.2",
     "react-toastify": "^10.0.5",
     "styled-components": "^6.1.13"

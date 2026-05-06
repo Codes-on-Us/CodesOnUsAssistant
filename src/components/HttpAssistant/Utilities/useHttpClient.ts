@@ -2,7 +2,6 @@ import { useContext, useState } from 'react';
 import AxiosInstance from "./axiosInstance"
 import axios, { AxiosRequestConfig } from 'axios';
 import { UserContext } from '../../AssistantProvider';
-import { UserTrackingLogMessage } from '../../UserTracking/UserTracking';
 
 
 interface Response<T> {
@@ -38,7 +37,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
     ) => {
 
         setIsLoading(true);
-        var logMessage: UserTrackingLogMessage = { message: "Http Request => " + request.method, url: request.url }
+      
 
         try {
 
@@ -113,14 +112,7 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
                 errorMessage = 'An unknown error occurred';
             }
 
-            logMessage.error = error;
-
-            try {
-                logMessage.response = typeof (responetError?.message) === 'string' ? responetError.message : JSON.stringify(responetError?.message ?? "")
-            } catch (error) {
-                logMessage.response = "" + (responetError.message as any)
-            }
-
+           
             // LogAndForget(logMessage)
 
             return { response: null, errorMessage, statusCode: error.response?.status, dontShowMessage: dontShowMessage , error: error };
