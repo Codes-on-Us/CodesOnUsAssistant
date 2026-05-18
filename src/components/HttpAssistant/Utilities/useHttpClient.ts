@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import AxiosInstance from "./axiosInstance"
 import axios, { AxiosRequestConfig } from 'axios';
-import { UserContext } from '../../AssistantProvider';
+import { UserContext, LoginPageContext } from '../../AssistantProvider';
 
 
 interface Response<T> {
@@ -23,11 +23,13 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const userState = useContext(UserContext);
-    // const { LogAndForget } = UseUserTracking()
-
+    const loginPage = useContext(LoginPageContext);
 
     const logout = () => {
-        userState?.[1](undefined)
+        userState?.[1](undefined);
+        if (loginPage) {
+            window.location.href = loginPage;
+        }
     }
 
 

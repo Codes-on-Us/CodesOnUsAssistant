@@ -41,6 +41,8 @@ export const HttpLocalCacheContext = createContext<
   React.MutableRefObject<Map<string, any>> | undefined
 >(undefined);
 
+export const LoginPageContext = createContext<string | undefined>(undefined);
+
 export const useHttpCache = () => {
   const cacheContext = useContext(HttpCacheContext);
   const pendingContext = useContext(HttpPendingContext);
@@ -58,15 +60,19 @@ export const useHttpCache = () => {
 };
 
 export const AssistantProvicer: FC<{
-  tracking?: boolean;
+  LoginPage?: string;
   children: ReactNode | ReactNode[];
-}> = ({ children }) => {
+}> = ({ LoginPage, children }) => {
+
   const userState = useState<any>();
+  
   const UserAssistant = useState<IUserAssistant>({
     checkUserInProccess: false,
     loadUserInProcess: false,
   });
 
+
+  
   const aciveTrackingState = useState(false);
   const httpCacheState = useState<Map<string, any>>(new Map());
   const httpPendingState = useState<Map<string, Promise<any>>>(new Map());
@@ -84,6 +90,7 @@ export const AssistantProvicer: FC<{
   }, []);
 
   return (
+    <LoginPageContext.Provider value={LoginPage}>
     <UserAssistantContext.Provider value={UserAssistant}>
       <UserContext.Provider value={userState}>
         <AciveTrackingContext.Provider value={aciveTrackingState}>
@@ -101,5 +108,6 @@ export const AssistantProvicer: FC<{
         </AciveTrackingContext.Provider>
       </UserContext.Provider>
     </UserAssistantContext.Provider>
+    </LoginPageContext.Provider>
   );
 };
