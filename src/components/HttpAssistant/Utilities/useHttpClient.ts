@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import AxiosInstance from "./axiosInstance"
 import axios, { AxiosRequestConfig } from 'axios';
-import { UserContext, LoginPageContext } from '../../AssistantProvider';
+import { UserContext, LoginPageContext, DontLogoutOnFailContext } from '../../AssistantProvider';
 
 
 interface Response<T> {
@@ -24,8 +24,11 @@ export function useHttpClient<T>(): UseHttpClientResponse<T> {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const userState = useContext(UserContext);
     const loginPage = useContext(LoginPageContext);
+    const dontLogoutOnFail = useContext(DontLogoutOnFailContext);
 
     const logout = () => {
+        if (dontLogoutOnFail) return;
+
         userState?.[1](undefined);
         if (loginPage) {
             window.location.href = loginPage;

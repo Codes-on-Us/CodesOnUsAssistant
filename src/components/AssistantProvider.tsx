@@ -29,9 +29,9 @@ export const HttpCacheContext = createContext<
 >(undefined);
 export const HttpPendingContext = createContext<
   | [
-      Map<string, Promise<any>>,
-      React.Dispatch<React.SetStateAction<Map<string, Promise<any>>>>,
-    ]
+    Map<string, Promise<any>>,
+    React.Dispatch<React.SetStateAction<Map<string, Promise<any>>>>,
+  ]
   | undefined
 >(undefined);
 export const HttpLocalPendingContext = createContext<
@@ -43,6 +43,8 @@ export const HttpLocalCacheContext = createContext<
 
 export const LoginPageContext = createContext<string | undefined>(undefined);
 
+export const DontLogoutOnFailContext = createContext<boolean>(false);
+
 export const useHttpCache = () => {
   const cacheContext = useContext(HttpCacheContext);
   const pendingContext = useContext(HttpPendingContext);
@@ -51,9 +53,9 @@ export const useHttpCache = () => {
 
   return {
     cache: cacheContext?.[0] || new Map(),
-    setCache: cacheContext?.[1] || (() => {}),
+    setCache: cacheContext?.[1] || (() => { }),
     pendingRequests: pendingContext?.[0] || new Map(),
-    setPendingRequests: pendingContext?.[1] || (() => {}),
+    setPendingRequests: pendingContext?.[1] || (() => { }),
     localPendingRef: localPendingContext || { current: new Map() },
     localCacheRef: localCacheContext || { current: new Map() },
   };
@@ -61,18 +63,19 @@ export const useHttpCache = () => {
 
 export const AssistantProvicer: FC<{
   LoginPage?: string;
+  dontLogoutOnFail?: boolean;
   children: ReactNode | ReactNode[];
-}> = ({ LoginPage, children }) => {
+}> = ({ LoginPage, dontLogoutOnFail = false, children }) => {
 
   const userState = useState<any>();
-  
+
   const UserAssistant = useState<IUserAssistant>({
     checkUserInProccess: false,
     loadUserInProcess: false,
   });
 
 
-  
+
   const aciveTrackingState = useState(false);
   const httpCacheState = useState<Map<string, any>>(new Map());
   const httpPendingState = useState<Map<string, Promise<any>>>(new Map());
@@ -91,23 +94,25 @@ export const AssistantProvicer: FC<{
 
   return (
     <LoginPageContext.Provider value={LoginPage}>
-    <UserAssistantContext.Provider value={UserAssistant}>
-      <UserContext.Provider value={userState}>
-        <AciveTrackingContext.Provider value={aciveTrackingState}>
-          <HttpCacheContext.Provider value={httpCacheState}>
-            <HttpPendingContext.Provider value={httpPendingState}>
-              <HttpLocalPendingContext.Provider value={httpLocalPendingRef}>
-                <HttpLocalCacheContext.Provider value={httpLocalCacheRef}>
-                  {children}
-                  <ToastContainer />
-                  {/* <UserTracking aciveTracking={tracking} /> */}
-                </HttpLocalCacheContext.Provider>
-              </HttpLocalPendingContext.Provider>
-            </HttpPendingContext.Provider>
-          </HttpCacheContext.Provider>
-        </AciveTrackingContext.Provider>
-      </UserContext.Provider>
-    </UserAssistantContext.Provider>
+      <DontLogoutOnFailContext.Provider value={dontLogoutOnFail}>
+        <UserAssistantContext.Provider value={UserAssistant}>
+          <UserContext.Provider value={userState}>
+            <AciveTrackingContext.Provider value={aciveTrackingState}>
+              <HttpCacheContext.Provider value={httpCacheState}>
+                <HttpPendingContext.Provider value={httpPendingState}>
+                  <HttpLocalPendingContext.Provider value={httpLocalPendingRef}>
+                    <HttpLocalCacheContext.Provider value={httpLocalCacheRef}>
+                      {children}
+                      <ToastContainer />
+                      {/* <UserTracking aciveTracking={tracking} /> */}
+                    </HttpLocalCacheContext.Provider>
+                  </HttpLocalPendingContext.Provider>
+                </HttpPendingContext.Provider>
+              </HttpCacheContext.Provider>
+            </AciveTrackingContext.Provider>
+          </UserContext.Provider>
+        </UserAssistantContext.Provider>
+      </DontLogoutOnFailContext.Provider>
     </LoginPageContext.Provider>
   );
 };
